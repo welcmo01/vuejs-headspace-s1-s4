@@ -1,0 +1,36 @@
+# docker-compose version
+version: '3.1'
+
+services:
+    # app: NodeJS application
+    app:
+        # Name the container
+        container_name: vuejs-headspace
+        # Build the container from the Dockerfile in the current directory
+        build:
+            context: .
+            dockerfile: Dockerfile
+        # Set the working directory to /var/www/html
+        working_dir: /var/www/html
+        # Mount the current directory as a volume into /var/www/html
+        volumes:
+            - ".:/var/www/html"
+        # Use the proxy (traefik) network
+        networks:
+            - proxy
+        # Restart the container if it crashes
+        restart: unless-stopped
+        # Labels for traefik
+        labels:
+            # Enable traefik routing
+            - "traefik.enable=true"
+            # Connect to the container using HTTP
+            - "traefik.http.routers.go.entryPoints=http"
+            # Connect to the container with the given URL (local.vue.headspace)
+            - "traefik.http.routers.go.rule=host(`local.vue.headspace`)"
+
+# Specify the network for proxy (traefik)
+networks:
+    proxy:
+        external:
+            name: proxy_default
